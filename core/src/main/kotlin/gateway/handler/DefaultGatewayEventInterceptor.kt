@@ -6,6 +6,7 @@ import dev.kord.core.event.kordCoroutineScope
 import dev.kord.core.gateway.ShardEvent
 import io.ktor.util.logging.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import mu.KotlinLogging
 import dev.kord.core.event.Event as CoreEvent
 
@@ -31,14 +32,17 @@ public class DefaultGatewayEventInterceptor(
     override suspend fun handle(event: ShardEvent, kord: Kord): CoreEvent? {
         return runCatching {
             for (listener in listeners) {
+                val scope = eventScope(event, kord)
                 val coreEvent = listener.handle(
                     event.event,
                     event.shard,
                     kord,
-                    eventScope.invoke(event, kord)
+                    scope
                 )
                 if (coreEvent != null) {
                     return coreEvent
+                } else {
+                    scope.cancel()
                 }
             }
             return null
