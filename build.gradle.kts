@@ -19,7 +19,8 @@ repositories {
 }
 
 group = Library.group
-version = Library.version
+version = "0.20.x-SNAPSHOT"
+print("group: $group, version: $version")
 
 tasks {
     wrapper {
